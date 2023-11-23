@@ -1,0 +1,13 @@
+name: basic-env-cpu
+channels:
+  - conda-forge
+dependencies:
+  - python=3.7
+  - azureml-sdk==1
+  - azureml-defaults==1.27.*
+  - scikit-learn
+  - pandas
+  - numpy
+  - matplotlib
+  - spacy
+  - python -m spacy download en_core_web_lg
