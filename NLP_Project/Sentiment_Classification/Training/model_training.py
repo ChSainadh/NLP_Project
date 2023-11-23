@@ -5,17 +5,16 @@ import pandas as pd
 from sklearn.metrics import classification_report
 from sklearn.model_selection import train_test_split
 from  sklearn.neighbors import KNeighborsClassifier
+from sklearn.metrics import accuracy_score
 
 
 # Split the dataframe into test and train data
 def split_data(df):
     df = df[:100]
-    print(df.head())
     df['label_num'] = df['label'].map({'FAKE' : 0, 'REAL': 1})
     print(df.columns)
     df = df.drop(['label','title','Unnamed: 0'], axis = 1)
     y = df['label_num'].values
-    print(y)
     
     nlp = spacy.load('en_core_web_lg')
     df['vector'] = df['text'].apply(lambda text: nlp(text).vector)  
@@ -33,17 +32,15 @@ def train_model(data):
     clf = KNeighborsClassifier(n_neighbors = 5, metric = 'euclidean')
     X_train_2d = np.stack(data["train"]["X"])
     X_test_2d = np.stack(data["test"]["X"])
-    print(data["train"]["y"])
     clf.fit(X_train_2d, data["train"]["y"])
-    y_pred = clf.predict(X_test_2d)
-    print(classification_report(data["test"]["y"], y_pred))
+    
     
 
 # Evaluate the metrics for the model
 def get_model_metrics(model, data):
-    preds = model.predict(data["test"]["X"])
-    mse = mean_squared_error(preds, data["test"]["y"])
-    metrics = {"mse": mse}
+    y_pred = model.predict(X_test_2d)
+    accuracy = accuracy_score(data["test"]["y"], y_pred)
+    metrics = {"accuracy": accuracy}
     return metrics
 
 
@@ -62,9 +59,9 @@ def main():
     model = train_model(data)
 
     # Log the metrics for the model
-    # metrics = get_model_metrics(model, data)
-    # for (k, v) in metrics.items():
-    #     print(f"{k}: {v}")
+    metrics = get_model_metrics(model, data)
+    for (k, v) in metrics.items():
+        print(f"{k}: {v}")
 
 
 if __name__ == '__main__':

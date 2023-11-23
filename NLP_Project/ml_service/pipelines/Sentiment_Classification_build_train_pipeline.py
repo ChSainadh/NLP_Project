@@ -12,7 +12,6 @@ import os
 
 def main():
     e = Env()
-    # Get Azure machine learning workspace
     aml_workspace = Workspace.get(
         name=e.workspace_name,
         subscription_id=e.subscription_id,
@@ -21,13 +20,11 @@ def main():
     print("get_workspace:")
     print(aml_workspace)
 
-    # Get Azure machine learning cluster
     aml_compute = get_compute(aml_workspace, e.compute_name, e.vm_size)
     if aml_compute is not None:
         print("aml_compute:")
         print(aml_compute)
 
-    # Create a reusable Azure ML environment
     environment = get_environment(
         aml_workspace,
         e.aml_env_name,
@@ -105,7 +102,7 @@ def main():
         name="Train Model",
         script_name=e.train_script_path,
         compute_target=aml_compute,
-        source_directory=e.sources_directory_train,
+        source_directory=e.sources_dir_train,
         outputs=[pipeline_data],
         arguments=[
             "--model_name",
@@ -130,7 +127,7 @@ def main():
         name="Evaluate Model ",
         script_name=e.evaluate_script_path,
         compute_target=aml_compute,
-        source_directory=e.sources_directory_train,
+        source_directory=e.sources_dir_train,
         arguments=[
             "--model_name",
             model_name_param,
@@ -146,9 +143,9 @@ def main():
         name="Register Model ",
         script_name=e.register_script_path,
         compute_target=aml_compute,
-        source_directory=e.sources_directory_train,
+        source_directory=e.sources_dir_train,
         inputs=[pipeline_data],
-        arguments=["--model_name", model_name_param, "--step_input", pipeline_data, ],  # NOQA: E501
+        arguments=["--model_name", model_name_param, "--step_input", pipeline_data],  
         runconfig=run_config,
         allow_reuse=False,
     )
